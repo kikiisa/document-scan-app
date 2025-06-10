@@ -1,6 +1,7 @@
 <script>
 import Camera from "simple-vue-camera";
 import { onMounted, ref } from "vue";
+import {enchancedContras,NaturalEnchancedContras} from "../utils/Effect"
 
 export default {
   components: {
@@ -30,19 +31,12 @@ export default {
         canvas.value.width = img.width;
         canvas.value.height = img.height;
         ctx.drawImage(img, 0, 0);
-
         // 5. (Opsional) Proses gambar: Grayscale + Kontras
         const imageData = ctx.getImageData(0, 0, img.width, img.height);
         const data = imageData.data;
-
-        for (let i = 0; i < data.length; i += 4) {
-          const gray = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
-          const threshold = gray > 127 ? 255 : 0;
-          data[i] = data[i + 1] = data[i + 2] = threshold;
-        }
-
+        // enchancedContras(data)
+        NaturalEnchancedContras(data)
         ctx.putImageData(imageData, 0, 0);
-
         // 6. (Opsional) Update urlImage dengan hasil canvas
         urlImage.value = canvas.value.toDataURL("image/png");
       };
@@ -66,7 +60,7 @@ export default {
       <Camera ref="camera" />
     </div>
     <div class="result-image mt-3">
-      <canvas id="canvasId" ref="canvas"></canvas>
+      <canvas id="canvasId" ref="canvas" style="display: none"></canvas>
       <img
         alt="imgId"
         id="imgId"
