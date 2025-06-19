@@ -12,9 +12,7 @@ export default {
     const canvas = ref(null);
     const datas = ref("kiki");
     const camera = ref(Camera);
-    onMounted(() => {
-      console.log("ok");
-    });
+
     const takePhoto = async () => {
       // 1. Ambil blob dari kamera
       const blobFile = await camera.value?.snapshot();
@@ -26,17 +24,34 @@ export default {
       // 3. Buat objek gambar dari blob
       const img = new Image();
       img.onload = () => {
+        // size a4
+        const A4_WIDTH = 595;
+        const A4_HEIGHT = 842;
         // 4. Siapkan canvas
         const ctx = canvas.value.getContext("2d");
-        canvas.value.width = img.width;
-        canvas.value.height = img.height;
-        ctx.drawImage(img, 0, 0);
+        canvas.value.width = A4_WIDTH;
+        canvas.value.height = A4_HEIGHT;
+
+        // FIT canvas ke gambar
+        // 4.1. Hitung rasio skala agar gambar muat di A4 (fit to page)
+        const scale = Math.min(A4_WIDTH / img.width, A4_HEIGHT / img.height);
+        const newWidth = img.width * scale;
+        const newHeight = img.height * scale;
+        // 4.2. Gambar di tengah canvas
+        const offsetX = (A4_WIDTH - newWidth) / 2;
+        const offsetY = (A4_HEIGHT - newHeight) / 2;
+
+        console.log(img.height, img.width);
+        ctx.drawImage(img, offsetX, offsetY,newWidth, newHeight);
+
         // 5. (Opsional) Proses gambar: Grayscale + Kontras
         const imageData = ctx.getImageData(0, 0, img.width, img.height);
         const data = imageData.data;
+
         // enchancedContras(data)
         NaturalEnchancedContras(data);
         ctx.putImageData(imageData, 0, 0);
+
         // 6. (Opsional) Update urlImage dengan hasil canvas
         urlImage.value = canvas.value.toDataURL("image/png");
       };
@@ -47,8 +62,8 @@ export default {
       if (!urlImage.value) return alert("Please take a photo first");
       const doc = new jsPDF({
         orientation: "portrait",
-        unit:"px",
-        format:[canvas.value.width, canvas.value.height], 
+        unit: "px",
+        format: [canvas.value.width, canvas.value.height],
       });
       doc.addImage(
         urlImage.value,
