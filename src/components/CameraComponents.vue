@@ -1,8 +1,8 @@
 <script>
 import Camera from "simple-vue-camera";
 import { onMounted, ref } from "vue";
-import {enchancedContras,NaturalEnchancedContras} from "../utils/Effect"
-
+import jsPDF from "jspdf";
+import { NaturalEnchancedContras } from "../utils/Effect";
 export default {
   components: {
     Camera,
@@ -35,7 +35,7 @@ export default {
         const imageData = ctx.getImageData(0, 0, img.width, img.height);
         const data = imageData.data;
         // enchancedContras(data)
-        NaturalEnchancedContras(data)
+        NaturalEnchancedContras(data);
         ctx.putImageData(imageData, 0, 0);
         // 6. (Opsional) Update urlImage dengan hasil canvas
         urlImage.value = canvas.value.toDataURL("image/png");
@@ -43,19 +43,37 @@ export default {
       img.src = urlImage.value;
     };
 
+    const downloadPDF = () => {
+      if (!urlImage.value) return alert("Please take a photo first");
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit:"px",
+        format:[canvas.value.width, canvas.value.height], 
+      });
+      doc.addImage(
+        urlImage.value,
+        "PNG",
+        0,
+        0,
+        canvas.value.width,
+        canvas.value.height
+      );
+      let nameFile = new Date().getTime() + ".pdf";
+      doc.save(nameFile);
+    };
     return {
+      downloadPDF,
       camera,
       datas,
       takePhoto,
       urlImage,
-      canvas
+      canvas,
     };
   },
 };
 </script>
 <template>
-  <div>
-    <h1 class="text-xs">Scan Document Here</h1>
+  <div class="bg-slate-800 p-3 rounded-3xl flex flex-col justify-center">
     <div class="media-video mb-4">
       <Camera ref="camera" />
     </div>
@@ -66,8 +84,13 @@ export default {
         id="imgId"
         :src="urlImage ? urlImage : '../src/assets/27002.jpg'"
       />
+      <div class="flex flex-row gap-3">
+        <button @click="takePhoto" class="btn mt-3">Take Document</button>
+        <button @click="downloadPDF" class="btn btn-error mt-3">
+          Download PDF
+        </button>
+      </div>
     </div>
-    <button @click="takePhoto">Camera</button>
   </div>
 </template>
 <style scoped></style>
