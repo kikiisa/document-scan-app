@@ -24,37 +24,35 @@ export default {
       // 3. Buat objek gambar dari blob
       const img = new Image();
       img.onload = () => {
-        // size a4
+        // Ukuran A4 dalam pixel (72 DPI)
         const A4_WIDTH = 595;
         const A4_HEIGHT = 842;
+
         // 4. Siapkan canvas
         const ctx = canvas.value.getContext("2d");
         canvas.value.width = A4_WIDTH;
         canvas.value.height = A4_HEIGHT;
 
-        // FIT canvas ke gambar
-        // 4.1. Hitung rasio skala agar gambar muat di A4 (fit to page)
+        // 4.1 Hitung skala agar gambar muat di dalam A4 (fit tanpa crop)
         const scale = Math.min(A4_WIDTH / img.width, A4_HEIGHT / img.height);
         const newWidth = img.width * scale;
         const newHeight = img.height * scale;
-        // 4.2. Gambar di tengah canvas
+
+        // 4.2 Gambar di tengah canvas
         const offsetX = (A4_WIDTH - newWidth) / 2;
         const offsetY = (A4_HEIGHT - newHeight) / 2;
-
-        console.log(img.height, img.width);
-        ctx.drawImage(img, offsetX, offsetY,newWidth, newHeight);
+        ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
 
         // 5. (Opsional) Proses gambar: Grayscale + Kontras
-        const imageData = ctx.getImageData(0, 0, img.width, img.height);
+        const imageData = ctx.getImageData(0, 0, A4_WIDTH, A4_HEIGHT);
         const data = imageData.data;
-
-        // enchancedContras(data)
         NaturalEnchancedContras(data);
         ctx.putImageData(imageData, 0, 0);
 
-        // 6. (Opsional) Update urlImage dengan hasil canvas
+        // 6. Update URL hasil akhir
         urlImage.value = canvas.value.toDataURL("image/png");
       };
+
       img.src = urlImage.value;
     };
 
