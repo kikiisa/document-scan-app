@@ -87,6 +87,8 @@ export default {
 </script>
 <template>
   <div class="bg-slate-800 p-3 rounded-3xl flex flex-col justify-center">
+    <h1 class="text-xl font-bold text-white mb-3">Kiky Scanner 📷 v.1.1 </h1>
+    
     <div class="media-video mb-4">
       <Camera ref="camera" />
     </div>
